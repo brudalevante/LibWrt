@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 790" role="img" aria-labelledby="title desc">
+  <title id="title">Evidence chain used to diagnose and validate the ath11k page-frag fix</title>
+  <desc id="desc">A six-stage flow starts with reproducible memory loss, identifies page-frag allocation growth, corrects false positives in pointer-only skb tracing, proves bounded RX ownership and cross-origin page mixing, validates the mechanism in a deterministic simulator, and finishes with a rollback-guarded live module test.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0 0L9 4.5L0 9Z" fill="#506773"/>
+    </marker>
+    <style>
+      .bg { fill: #fffdf8; }
+      .box { fill: #ffffff; stroke: #aeb8ba; stroke-width: 1.8; }
+      .box.ground { fill: #edf5f7; stroke: #176b87; }
+      .box.correct { fill: #fff6f4; stroke: #c96b66; }
+      .box.proof { fill: #eef8f5; stroke: #08766f; }
+      .box.test { fill: #fff8ed; stroke: #a95b16; }
+      .num { fill: #176b87; font: 800 15px ui-monospace, monospace; letter-spacing: .06em; }
+      .head { fill: #123b52; font: 700 24px system-ui, sans-serif; }
+      .body { fill: #455963; font: 500 16px system-ui, sans-serif; }
+      .metric { fill: #17242d; font: 700 15px ui-monospace, monospace; }
+      .note { fill: #52626d; font: 500 15px system-ui, sans-serif; }
+      .arrow { fill: none; stroke: #506773; stroke-width: 2.3; marker-end: url(#arrow); }
+      .branch { fill: none; stroke: #9e3937; stroke-width: 2; stroke-dasharray: 7 6; marker-end: url(#arrow); }
+      .reject { fill: #9e3937; font: 700 16px system-ui, sans-serif; }
+      .outcome { fill: #08766f; font: 750 17px system-ui, sans-serif; }
+      .pill { fill: #dcefeb; stroke: #90c9c3; stroke-width: 1.2; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="790" rx="18"/>
+
+  <rect class="box" x="40" y="40" width="330" height="190" rx="14"/>
+  <text class="num" x="66" y="72">01 · REPRODUCE</text>
+  <text class="head" x="66" y="108">Memory failure</text>
+  <text class="body" x="66" y="140">Natural repeater load pushes</text>
+  <text class="body" x="66" y="164">available RAM toward zero.</text>
+  <text class="metric" x="66" y="198">−12…−16 MB/min</text>
+  <text class="note" x="225" y="198">OOM without reload</text>
+
+  <path class="arrow" d="M372 135H422"/>
+
+  <rect class="box ground" x="430" y="40" width="330" height="190" rx="14"/>
+  <text class="num" x="456" y="72">02 · ALLOCATOR</text>
+  <text class="head" x="456" y="108">Name the bytes</text>
+  <text class="body" x="456" y="140"><tspan font-family="ui-monospace, monospace">/proc/allocinfo</tspan> isolates</text>
+  <text class="body" x="456" y="164">page-frag backing growth.</text>
+  <text class="metric" x="456" y="198">__page_frag_cache_refill</text>
+  <text class="note" x="678" y="198">≈ 1:1</text>
+
+  <path class="arrow" d="M762 135H812"/>
+
+  <rect class="box correct" x="820" y="40" width="340" height="190" rx="14"/>
+  <text class="num" x="846" y="72">03 · CORRECT</text>
+  <text class="head" x="846" y="108">Remove trace artifacts</text>
+  <text class="body" x="846" y="140">Count the full free set and</text>
+  <text class="body" x="846" y="164">separate pointer generations.</text>
+  <text class="metric" x="846" y="198">iftx · reuse · truncation</text>
+
+  <path class="arrow" d="M990 232V278"/>
+
+  <rect class="box proof" x="820" y="286" width="340" height="190" rx="14"/>
+  <text class="num" x="846" y="318">04 · OWNERSHIP</text>
+  <text class="head" x="846" y="354">Track generations</text>
+  <text class="body" x="846" y="386">Allocate → post → reap → release,</text>
+  <text class="body" x="846" y="410">per ring and physical page.</text>
+  <text class="metric" x="846" y="444">26 clean snapshots</text>
+
+  <path class="arrow" d="M818 381H768"/>
+
+  <rect class="box test" x="430" y="286" width="330" height="190" rx="14"/>
+  <text class="num" x="456" y="318">05 · SIMULATE</text>
+  <text class="head" x="456" y="354">Test the mechanism</text>
+  <text class="body" x="456" y="386">Replay identical events through</text>
+  <text class="body" x="456" y="410">shared and private-cache policies.</text>
+  <text class="metric" x="456" y="444">169.7 vs 76.9 MiB · 300 s</text>
+
+  <path class="arrow" d="M428 381H378"/>
+
+  <rect class="box proof" x="40" y="286" width="330" height="190" rx="14"/>
+  <text class="num" x="66" y="318">06 · LIVE GATE</text>
+  <text class="head" x="66" y="354">Prove sufficiency</text>
+  <text class="body" x="66" y="386">Transient module, stock rollback,</text>
+  <text class="body" x="66" y="410">and continuous health checks.</text>
+  <text class="metric" x="66" y="444">30 min + 5 min · 0 reloads</text>
+
+  <path class="branch" d="M990 478V518H548"/>
+  <rect x="40" y="526" width="520" height="112" rx="12" fill="#fff7f5" stroke="#e2aaa7" stroke-width="1.5"/>
+  <text class="reject" x="64" y="559">Rejected after complete accounting</text>
+  <text class="body" x="64" y="590">Unbounded bridge/mac80211 or UDP clone holder;</text>
+  <text class="body" x="64" y="615">firmware TX completion; skipped final page-frag free.</text>
+
+  <path class="arrow" d="M595 478V518H650"/>
+  <rect x="600" y="526" width="560" height="112" rx="12" fill="#f1faf7" stroke="#90c9c3" stroke-width="1.5"/>
+  <text class="outcome" x="624" y="559">Selected explanation</text>
+  <text class="body" x="624" y="590">Fixed logical inventory + cross-origin lifetime mixing</text>
+  <text class="body" x="624" y="615">→ sparse 32 KiB pages stay pinned as ownership rotates.</text>
+
+  <rect class="pill" x="230" y="684" width="740" height="68" rx="34"/>
+  <text class="outcome" x="600" y="714" text-anchor="middle">Evidence must agree at three levels</text>
+  <text class="body" x="600" y="738" text-anchor="middle">allocator growth · ownership state · live operational outcome</text>
+</svg>

@@ -1,0 +1,15 @@
+#!/bin/sh
+# Disable GRO fraglist (rx-gro-list / NETIF_F_GRO_FRAGLIST) on interfaces as
+# they appear. This reduced page-frag pressure during the investigation but did
+# not fix the allocator-lifetime mismatch addressed by patch 949. Running on
+# every netdev add event preserves the setting across PHY renumbering. Generic
+# rx-gro stays enabled because disabling it had no measured benefit and reduces
+# TCP throughput.
+[ "$ACTION" = "add" ] || exit 0
+[ -x /usr/sbin/gro-toggle ] || exit 0
+DEV="${DEVICENAME:-$INTERFACE}"
+case "$DEV" in
+	phy*-ap0|phy*-sta0|br-lan|lan*|wan|eth*)
+		/usr/sbin/gro-toggle "$DEV" rx-gro-list >/dev/null 2>&1
+	;;
+esac
